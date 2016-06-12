@@ -8,5 +8,5 @@ class Musica:
 	def getTagsBin( self ):
 		outputBin = []
 		for item in self.tags:
-			outputBin.append( int(item) )
+			outputBin.append( float(item) )
 		return outputBin
