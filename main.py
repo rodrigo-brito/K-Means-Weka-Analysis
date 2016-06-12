@@ -29,6 +29,9 @@ def getClusters( musicas ):
 	return clusters
 
 def separateClusters( clusters, musicas ):
+	if len(clusters) < 2:
+		print "ERRO: Apenas um cluster identificado"
+		sys.exit()
 	clusters_output = []
 	for i in range(0, len(clusters)):
 		clusters_output.append([])
@@ -48,11 +51,31 @@ def getSSE( musicas ):
 			sse += dist
 	return sse
 
+def getBetaCV( musicas ):
+	clustersNomes = getClusters( musicas )
+	clusters = separateClusters(clustersNomes, musicas)
+	sumIntra = 0.0
+	sumInter = 0.0
+	for h in range(0, len(clusters)):#percorre todos os clusters
+		for i in range(0, len(clusters[h])):#percorre cada musica do cluster
+			#distancia intra-cluster
+			for j in range(i+1, len(clusters[h])):#percorre cada musica intra-cluster sem repetir a combinacao
+				sumIntra += getDistance(clusters[h][i], clusters[h][j])#calcula a distancia e guarda
+			#distancia inter-cluster
+			for k in range(h+1, len(clusters)): #percorre os outros clusters
+				for l in range(0, len(clusters[k])): #percorre cada uma das musicas dos outros cluster
+					sumInter += getDistance(clusters[h][i], clusters[k][l])#calcula a distancia e guarda
+	return sumIntra/sumInter
+
+def getDunn( musicas ):
+	return 0
+
 def main():
 	if(len(sys.argv) != 2):
 		print 'Informe o arquivo de leitura na chamada do script'
 		print 'Ex: $ python main.py ./result.txt'
 		sys.exit()
 	musicas = readResults( str( sys.argv[1] ) )
-	print 'SSE = ',getSSE(musicas)
+	print 'SSE = ',getSSE( musicas )
+	print 'BetaCV = ',getBetaCV( musicas )
 main()
