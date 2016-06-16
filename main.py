@@ -7,7 +7,7 @@ def readResults( nome_arquivo ):
     arquivo = open( nome_arquivo, 'r' )
     for linha in arquivo:
         musica = linha.replace('\n','').split(',')
-        musicas.append( Musica(musica[len(musica)-1], musica[:len(musica)-1]) )
+        musicas.append( Musica(musica[len(musica)-1], musica[1:len(musica)-1]) )
     arquivo.close()
     return musicas
 
@@ -56,16 +56,26 @@ def getBetaCV( musicas ):
 	clusters = separateClusters(clustersNomes, musicas)
 	sumIntra = 0.0
 	sumInter = 0.0
+	minInter = float("inf")
+	maxIntra = 0.0
 	for h in range(0, len(clusters)):#percorre todos os clusters
 		for i in range(0, len(clusters[h])):#percorre cada musica do cluster
 			#distancia intra-cluster
 			for j in range(i+1, len(clusters[h])):#percorre cada musica intra-cluster sem repetir a combinacao
-				sumIntra += getDistance(clusters[h][i], clusters[h][j])#calcula a distancia e guarda
+				distIntra = getDistance(clusters[h][i], clusters[h][j])#calcula a distancia e guarda
+				sumIntra += distIntra
+				if distIntra > maxIntra:
+					maxIntra = distIntra
 			#distancia inter-cluster
 			for k in range(h+1, len(clusters)): #percorre os outros clusters
 				for l in range(0, len(clusters[k])): #percorre cada uma das musicas dos outros cluster
-					sumInter += getDistance(clusters[h][i], clusters[k][l])#calcula a distancia e guarda
-	return sumIntra/sumInter
+					distInter = getDistance(clusters[h][i], clusters[k][l])#calcula a distancia e guarda
+					sumInter += distInter
+					if distInter < minInter:
+						minInter = distInter
+	dunn = minInter/maxIntra
+	print "Dunn = ",dunn
+	print 'BetaCV = ',sumIntra/sumInter
 
 def getDunn( musicas ):
 	return 0
@@ -77,5 +87,5 @@ def main():
 		sys.exit()
 	musicas = readResults( str( sys.argv[1] ) )
 	print 'SSE = ',getSSE( musicas )
-	print 'BetaCV = ',getBetaCV( musicas )
+	getBetaCV( musicas )
 main()
